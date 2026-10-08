@@ -110,8 +110,4 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
-
----
-
 © 2026 Akshay S. All rights reserved.
