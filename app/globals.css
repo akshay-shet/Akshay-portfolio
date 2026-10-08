@@ -1,26 +1,318 @@
 @import "tailwindcss";
 
+/* ── Design Tokens ──────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #030303;
+  --surface: #090909;
+  --surface2: #111111;
+  --accent: #c40024;
+  --accent-bright: #ff3b5c;
+  --text: #f5f5f5;
+  --muted: #888888;
+  --border: rgba(196, 0, 36, 0.25);
+
+  --font-oswald: var(--font-oswald);
+  --font-space: var(--font-space);
+  --font-syne: var(--font-syne);
+  --font-mono: var(--font-mono);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Base ───────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  /* NOTE: No overflow:hidden here — it breaks Lenis smooth scrolling */
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-space), "Space Grotesk", sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+/* ── Selection ──────────────────────────────────────────── */
+::selection { background: rgba(196, 0, 36, 0.35); color: #fff; }
+
+/* ── Cursor ─────────────────────────────────────────────── */
+a,
+button,
+[data-magnetic] { cursor: none; }
+
+/* ── Noise + Scanlines ──────────────────────────────────── */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+.scanlines-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+}
+
+/* ── Utility Classes ────────────────────────────────────── */
+.font-oswald  { font-family: var(--font-oswald), "Oswald", sans-serif; }
+.font-syne    { font-family: var(--font-syne), "Syne", sans-serif; }
+.font-space   { font-family: var(--font-space), "Space Grotesk", sans-serif; }
+.font-mono    { font-family: var(--font-mono), "JetBrains Mono", monospace; }
+
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #ff3b5c 50%, #c40024 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background: rgba(9, 9, 9, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(196, 0, 36, 0.15);
+}
+
+.neon-text {
+  text-shadow:
+    0 0 10px rgba(196, 0, 36, 0.8),
+    0 0 30px rgba(196, 0, 36, 0.5),
+    0 0 60px rgba(196, 0, 36, 0.25);
+}
+
+.section-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::before {
+  content: "";
+  display: inline-block;
+  width: 30px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.section-title {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin-bottom: 60px;
+}
+
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196, 0, 36, 0.3), transparent);
+}
+
+/* ── Neon Border ────────────────────────────────────────── */
+.neon-border {
+  border: 1px solid rgba(196, 0, 36, 0.4);
+  box-shadow: 0 0 15px rgba(196, 0, 36, 0.1), inset 0 0 15px rgba(196, 0, 36, 0.05);
+}
+
+/* ── Pill Component ─────────────────────────────────────── */
+.skill-pill {
+  font-size: 0.75rem;
+  padding: 5px 14px;
+  border: 1px solid rgba(196, 0, 36, 0.25);
+  background: rgba(196, 0, 36, 0.05);
+  color: var(--text);
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+.skill-pill:hover {
+  border-color: var(--accent-bright);
+  background: rgba(196, 0, 36, 0.12);
+  color: var(--accent-bright);
+  box-shadow: 0 0 15px rgba(196, 0, 36, 0.15);
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn-primary {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 14px 32px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 30px rgba(196, 0, 36, 0.3);
+  cursor: none;
+}
+.btn-primary:hover {
+  background: var(--accent-bright);
+  box-shadow: 0 0 50px rgba(255, 59, 92, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  font-family: var(--font-oswald), sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 14px 32px;
+  border: 1px solid rgba(196, 0, 36, 0.5);
+  color: var(--text);
+  background: transparent;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: none;
+}
+.btn-outline:hover {
+  border-color: var(--accent-bright);
+  color: var(--accent-bright);
+  box-shadow: 0 0 25px rgba(196, 0, 36, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ── OTW Badge ──────────────────────────────────────────── */
+.otw-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid rgba(32, 191, 107, 0.4);
+  color: #20bf6b;
+  background: rgba(32, 191, 107, 0.05);
+  margin-bottom: 20px;
+}
+.otw-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #20bf6b;
+  animation: blink-dot 1.5s ease-in-out infinite;
+}
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* ── Timeline pulse ring ────────────────────────────────── */
+@keyframes pulse-ring {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.8); }
+}
+.tl-dot-pulse::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(196, 0, 36, 0.3);
+  animation: pulse-ring 2s ease-out infinite;
+}
+.tl-dot-pulse::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(196, 0, 36, 0.15);
+  animation: pulse-ring 2s ease-out infinite 0.4s;
+}
+
+/* ── Photo orbit ────────────────────────────────────────── */
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+.orbit-ring {
+  animation: orbit-spin 20s linear infinite;
+}
+
+/* ── Watermark ──────────────────────────────────────────── */
+.hero-watermark {
+  position: absolute;
+  top: 50%;
+  left: 60px;
+  transform: translateY(-50%);
+  font-family: var(--font-oswald), sans-serif;
+  font-size: clamp(8rem, 18vw, 18rem);
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 0;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(196, 0, 36, 0.07);
+  text-shadow: 0 0 80px rgba(196, 0, 36, 0.05);
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* ── 3D card perspective ────────────────────────────────── */
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease, border-color 0.3s, box-shadow 0.3s;
+}
+
+/* ── Terminal ───────────────────────────────────────────── */
+.terminal-box {
+  background: #0a0a0a;
+  border: 1px solid rgba(196, 0, 36, 0.25);
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(196, 0, 36, 0.08);
+}
+
+/* ── Form ───────────────────────────────────────────────── */
+.form-input,
+.form-textarea {
+  background: var(--surface);
+  border: 1px solid rgba(196, 0, 36, 0.2);
+  color: var(--text);
+  font-family: var(--font-space), sans-serif;
+  font-size: 0.9rem;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.3s;
+  width: 100%;
+  resize: none;
+}
+.form-input:focus,
+.form-textarea:focus {
+  border-color: rgba(196, 0, 36, 0.6);
+  box-shadow: 0 0 15px rgba(196, 0, 36, 0.1);
 }
